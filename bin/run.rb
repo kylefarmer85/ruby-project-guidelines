@@ -1,5 +1,4 @@
 require_relative '../config/environment'
 
-
-
-puts "HELLO WORLD"
+app = StudyApp.new
+app.run
