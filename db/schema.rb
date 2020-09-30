@@ -13,8 +13,10 @@
 ActiveRecord::Schema.define(version: 2020_09_29_165112) do
 
   create_table "flashcards", force: :cascade do |t|
-    t.string "question"
-    t.string "answer"
+    t.text "eword"
+    t.text "sword"
+    t.index ["eword"], name: "eindex"
+    t.index ["sword"], name: "sindex"
   end
 
   create_table "user_flashcards", force: :cascade do |t|

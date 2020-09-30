@@ -35,6 +35,7 @@ class StudyApp
             elsif input == 'save'
                 UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
                 puts "Card saved to #{@user.username.capitalize}'s collection!"
+                #maybe make into another helper method to use when user creates own card
             elsif input == 'menu'
                 main_menu 
             else new_card_or_save
@@ -45,19 +46,19 @@ class StudyApp
         puts "Translate this to english:"
         sleep(1)
         @new_flashcard = random_flashcard
-        puts "#{@new_flashcard.question}"
-        puts "Type your answer to flip the flashcard."
+        puts "#{@new_flashcard.sword}"
+        puts "Type your eword to flip the flashcard."
         input = gets.chomp 
         sleep(1)
         puts "."
         sleep(1)
         puts ".."
         sleep(1)
-        if input == @new_flashcard.answer
+        if input == @new_flashcard.eword
             puts "...Correct!"
         new_card_or_save
         else
-            puts "...Sorry, the answer is #{@new_flashcard.answer}."
+            puts "...Sorry, the eword is #{@new_flashcard.eword}."
         new_card_or_save
         end 
     end
