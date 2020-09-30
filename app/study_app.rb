@@ -26,7 +26,6 @@ class StudyApp
         puts "Make selection: study, collection or quit."
         input = gets.chomp.downcase
         if input == "study"
-            # study_flashcards(Flashcard)
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif input == 'collection'
@@ -41,11 +40,6 @@ class StudyApp
         end
     end
 
-    # def study_flashcards(collection)
-    #     view_flashcards(collection, random_flashcard)
-    #     new_card_or_save
-    # end
-
     def access_collection
         # puts "Type 'view' to show random card or 'create' to make a new card."
         # if UserFlashcard.all = []
@@ -53,12 +47,14 @@ class StudyApp
         # else
         @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
         # binding.pry
-        view_flashcards(@user_flashcards, sample_from_collection)
+        view_flashcards(sample_from_collection(@user_flashcards))
+        new_card_or_delete
         # end
     end
 
     def sample_from_collection(collection)
-        user_flashcard_ids = collection.map {|fc| fc.flashcard_id}.sample
+        user_flashcard_id = collection.map {|fc| fc.flashcard_id}.sample
+        Flashcard.find(user_flashcard_id)
         #take in @user_flashcards and get back a sample
     end
 
@@ -104,6 +100,23 @@ class StudyApp
             elsif input == 'menu'
                 main_menu 
             else new_card_or_save
+        end
+    end
+
+    def new_card_or_delete
+        puts "Type 'new card' for another card, 'delete' to add to collection, or 'menu'."
+        input= gets.chomp.downcase 
+            if input == 'new card'
+                view_flashcards(sample_from_collection(@user_flashcards))
+                new_card_or_delete
+            elsif input == 'delete'
+                UserFlashcard.destroy_by(flashcard_id: @new_flashcard.id)
+                puts "Card deleted from #{@user.username.capitalize}'s collection!"
+                view_flashcards(sample_from_collection(@user_flashcards))
+                new_card_or_delete
+                #maybe make into another helper method to use when user creates own card
+            elsif input == 'menu'
+                main_menu  
         end
     end
 
