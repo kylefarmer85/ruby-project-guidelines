@@ -19,13 +19,17 @@ The user will have many flashcards through user flashcard collection.
                 option a. save to collection (then show another random card)
                 option b. next card (another random card)
                 option c. return to menu
-    b. Study your collection (from UserFlashcard)
+    b. Access your collection (from UserFlashcard)
           random flashcard question from user flashcard collection
           *user action*
           show user flashcard answer
-                option a. delete from collection (then show another random card)
-                option b. next card (another random card)
-                option c. return to menu
+          a. study/pull random cards from collection
+            -next card OR
+            - delete from collection (then show another random card)
+            -main menu
+          b. create new card!
+              -enter question
+              -enter answer
     c. sign-out/exit (back to sign-in)
     **BONUS**
     d. Study by category

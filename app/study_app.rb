@@ -8,7 +8,7 @@ class StudyApp
     def run
         welcome
         login
-        choose_action
+        main_menu 
     end
 
     def welcome
@@ -25,43 +25,52 @@ class StudyApp
     def random_flashcard
         rand_id = rand(Flashcard.count) + 1
         rand_record = Flashcard.find(rand_id)
-         #gets random flashcard, show question
       end
 
     def new_card_or_save
-        puts "Type 'new card' for another card or 'save' to add to collection."
+        puts "Type 'new card' for another card, 'save' to add to collection, or 'menu'."
         input= gets.chomp.downcase 
             if input == 'new card'
                 study_flashcards
             elsif input == 'save'
                 UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
-                # puts "#{UserFlashcard.where('user_id = ?', @user.id)}"
+                puts "Card saved to #{@user.username.capitalize}'s collection!"
+            elsif input == 'menu'
+                main_menu 
             else new_card_or_save
         end
     end
     
     def study_flashcards
-        # puts "#{@user.username}"
+        puts "Translate this to english:"
+        sleep(1)
         @new_flashcard = random_flashcard
         puts "#{@new_flashcard.question}"
-        # random_card = Flashcard.question
-        puts "Type any key to flip the flashcard."
-        gets.chomp 
-        puts "#{@new_flashcard.answer}"
-        #gets user input and show answer
+        puts "Type your answer to flip the flashcard."
+        input = gets.chomp 
+        sleep(1)
+        puts "."
+        sleep(1)
+        puts ".."
+        sleep(1)
+        if input == @new_flashcard.answer
+            puts "...Correct!"
         new_card_or_save
-        #add this flashcard to userflashcard or repeat
-      end
+        else
+            puts "...Sorry, the answer is #{@new_flashcard.answer}."
+        new_card_or_save
+        end 
+    end
 
-    def choose_action
-        puts "Make selection"
+    def main_menu
+        puts "Make selection: study, quit."
         input = gets.chomp.downcase
         if input == "study"
             study_flashcards
-        # elsif input == "collection"
-        #     @user.study_userflashcards
+        elsif input == "quit"
+            puts "See you later!"
         else
-            choose_action
+           main_menu
         # prompt = TTY::Prompt.new
         # prompt.select("What would you like to do?", %w(study-all, study-your-collection, login))
             #if study-all is selected @user.study_all
