@@ -5,35 +5,48 @@ class StudyApp
     attr_accessor :new_flashcard, :user_flashcards
 
     def run
+        system("clear")
         welcome
         login
         main_menu 
     end
 
     def welcome
-        puts "Let's study!"
+        pastel = Pastel.new
+        font = TTY::Font.new(:doom)
+        puts pastel.yellow(font.write("Spanish Buddy"))
+        sleep(1)
+        puts "\n\nLet's study!"
     end
 
     def login
-        puts "Enter username to sign-up or log-in!"
+        sleep(1)
+        puts "\n\nEnter username to sign-up or log-in!"
         input = gets.chomp.downcase
         @user = User.find_or_create_by(username: input)
-        puts "Welcome, #{@user.username.capitalize}"
+        puts "\n\nWelcome, #{@user.username.capitalize}!"
+        sleep(1)
     end
 
 
     def main_menu
-        puts "Make selection: study, collection or quit."
-        input = gets.chomp.downcase
-        if input == "study"
+        prompt = TTY::Prompt.new
+        selection = prompt.select("Make a Selection:") do |menu|
+            menu.choice "Study new flashcards"
+            menu.choice 'Study your collection'
+            menu.choice 'Create new flashcards'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Study new flashcards"
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
-        elsif input == 'collection'
+        elsif selection == 'Study your collection'
             access_collection
-        elsif input == 'quit'
-            quit
-        else
-           main_menu
+        elsif selection == 'Create new flashcards'
+            create_card
+        elsif selection == 'Quit'
+            quit 
         end
     end
 
@@ -50,11 +63,13 @@ class StudyApp
     end
 
     def view_flashcards(selector)
-        puts "Translate this to english:"
+        system("clear")
+        puts "Translate this to english:\n\n"
         sleep(1)
         @new_flashcard = selector
         puts "#{@new_flashcard.sword}"
-        puts "Type your translation to flip the flashcard."
+        sleep(1)
+        puts "\n\nType your translation to flip the flashcard.\n\n"
         input = gets.chomp 
         sleep(1)
         puts "."
@@ -62,11 +77,11 @@ class StudyApp
         puts ".."
         sleep(1)
         if input == @new_flashcard.eword
-            puts "...Correct!"
-        # elsif input == 'quit'
-        #     quit
+            puts "...Correct!\n\n"
+            sleep(1)
         else
-            puts "...Sorry, the correct answer is #{@new_flashcard.eword}."
+            puts "...Sorry, the correct answer is #{@new_flashcard.eword}.\n\n"
+            sleep(1)
         end 
     end
 
@@ -77,44 +92,65 @@ class StudyApp
       end
 
     def new_card_or_save
-        puts "Type 'new card' for another card, 'save' to add to collection, or 'menu'."
-        input= gets.chomp.downcase 
-            if input == 'new card'
-                view_flashcards(random_flashcard(Flashcard))
-                new_card_or_save
-            elsif input == 'save'
-                UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
-                puts "Card saved to #{@user.username.capitalize}'s collection!"
-                view_flashcards(random_flashcard(Flashcard))
-                new_card_or_save
-                #maybe make into another helper method to use when user creates own card
-            elsif input == 'menu'
-                main_menu 
-            else new_card_or_save
+        prompt = TTY::Prompt.new
+        selection = prompt.select("Please choose:") do |menu|
+            menu.choice 'Get another card'
+            menu.choice 'Save card to Collection'
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == 'Get another card'
+            view_flashcards(random_flashcard(Flashcard))
+            new_card_or_save
+        elsif selection == 'Save card to Collection'
+            UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
+            puts "Card saved to #{@user.username.capitalize}'s collection!\n\n"
+            view_flashcards(random_flashcard(Flashcard))
+            new_card_or_save
+        elsif selection == 'Main Menu'
+            system("clear")
+            main_menu 
+        elsif selection == 'Quit'
+            quit
         end
     end
 
     def new_card_or_delete
-        puts "Type 'new card' for another card, 'delete' to add to collection, or 'menu'."
-        input= gets.chomp.downcase 
-            if input == 'new card'
-                view_flashcards(sample_from_collection(@user_flashcards))
-                new_card_or_delete
-            elsif input == 'delete'
-                @user_flashcards.destroy_by(flashcard_id: @new_flashcard.id)
-                puts "Card deleted from #{@user.username.capitalize}'s collection!"
-                check_user_flashcards
-                view_flashcards(sample_from_collection(@user_flashcards))
-                new_card_or_delete
-            else input == 'menu'
-                main_menu  
+        prompt = TTY::Prompt.new
+        selection = prompt.select("Please choose:") do |menu|
+            menu.choice 'Get another card'
+            menu.choice 'Delete card from Collection'
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == 'Get another card'
+            view_flashcards(sample_from_collection(@user_flashcards))
+            new_card_or_delete
+        elsif selection == 'Delete card from Collection'
+            @user_flashcards.destroy_by(flashcard_id: @new_flashcard.id)
+            system("clear")
+            puts "Card deleted from #{@user.username.capitalize}'s collection!"
+            sleep(1)
+            check_user_flashcards
+            view_flashcards(sample_from_collection(@user_flashcards))
+            new_card_or_delete
+        elsif selection == 'Main Menu'
+            system("clear")
+            main_menu 
+        elsif selection == 'Quit'
+            quit
         end
     end
 
     def check_user_flashcards
         @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
         if @user_flashcards == []
+            system("clear")
+            sleep(1)
             puts "Sorry, no cards saved in collection."
+            sleep(1)
             main_menu
         end
     end
