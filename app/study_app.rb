@@ -24,13 +24,13 @@ class StudyApp
         puts "\n\nEnter username to sign-up or log-in!"
         input = gets.chomp.downcase
         @user = User.find_or_create_by(username: input)
-        puts "\n\nWelcome, #{@user.username.capitalize}!"
         sleep(1)
+        puts "\n\nWelcome, #{@user.username.capitalize}!\n\n"
     end
 
 
     def main_menu
-<<<<<<< HEAD
+        sleep(1)
         prompt = TTY::Prompt.new
         selection = prompt.select("Make a Selection:") do |menu|
             menu.choice "Study new flashcards"
@@ -40,18 +40,14 @@ class StudyApp
         end
   
         if selection == "Study new flashcards"
->>>>>>> 8c871b7acc24cd84a9f2a4ba0fca13e6dd56544b
-
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif selection == 'Study your collection'
             access_collection
-<<<<<<< HEAD
         elsif selection == 'Create new flashcards'
             create_card
         elsif selection == 'Quit'
             quit 
->>>>>>> 8c871b7acc24cd84a9f2a4ba0fca13e6dd56544b
         end
     end
 
@@ -62,15 +58,35 @@ class StudyApp
     end
 
     def create_card
+        system("clear")
+        sleep(1)
         puts "Create your own card and save to you collection!"
         sleep(1)
-        puts "First, enter the spanish word for your new flashcard."
+        puts "\n\nFirst, enter the spanish word for your new flashcard.\n\n"
         sword = gets.chomp
-        puts "Enter the english translation."
+        sleep(1)
+        puts "\n\nEnter the english translation.\n\n"
         eword = gets.chomp
+        puts "\n\n"
         @new_flashcard = Flashcard.create(eword: eword, sword: sword)
-        # @new_flashcard.id = (Flashcard.last.id + 1)
+        sleep(1)
         save_card
+
+        prompt = TTY::Prompt.new
+        selection = prompt.select("\n\nMake a Selection:") do |menu|
+            menu.choice "Create another card"
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Create another card"
+            create_card
+        elsif selection == 'Main Menu'
+            system('clear')
+            main_menu
+        elsif selection == "Quit"
+            quit
+        end
     end
 
     def sample_from_collection(collection)
@@ -84,11 +100,12 @@ class StudyApp
     #   binding.pry
       UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
       puts "Card saved to #{@user.username.capitalize}'s collection!"
-      main_menu
+      sleep(1)
     end
 
     def view_flashcards(selector)
         system("clear")
+        sleep(1)
         puts "Translate this to english:\n\n"
         sleep(1)
         @new_flashcard = selector
@@ -181,8 +198,13 @@ class StudyApp
     end
 
     def quit
-       puts "See you later!"
+       system("clear")
+       sleep(1)
+       pastel = Pastel.new
+       font = TTY::Font.new(:doom)
+       puts pastel.yellow(font.write("Choa!"))
        sleep(2)
+       system("clear")
        exit!
     end
 
