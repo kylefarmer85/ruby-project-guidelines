@@ -26,11 +26,16 @@ class StudyApp
         @user = User.find_or_create_by(username: input)
         sleep(1)
         puts "\n\nWelcome, #{@user.username.capitalize}!\n\n"
+        sleep(1)
     end
 
 
     def main_menu
+        system("clear")
         sleep(1)
+        pastel = Pastel.new
+        font = TTY::Font.new(:doom)
+        puts pastel.blue(font.write("menu"))
         prompt = TTY::Prompt.new
         selection = prompt.select("Make a Selection:") do |menu|
             menu.choice "Study new flashcards"
@@ -43,18 +48,12 @@ class StudyApp
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif selection == 'Study your collection'
-            access_collection
+            study_collection
         elsif selection == 'Create new flashcards'
             create_card
         elsif selection == 'Quit'
             quit 
         end
-    end
-
-    def access_collection
-        check_user_flashcards
-        view_flashcards(sample_from_collection(@user_flashcards))
-        new_card_or_delete
     end
 
     def create_card
@@ -89,6 +88,47 @@ class StudyApp
         end
     end
 
+    def study_collection
+        system("clear")
+        sleep(1)
+        check_user_flashcards
+        user_flashcard_ids = @user_flashcards.map {|fc| fc.flashcard_id}
+        user_flashcards = user_flashcard_ids.map {|uf| Flashcard.find(uf)}
+        swords = user_flashcards.map {|f| f.sword}
+        prompt = TTY::Prompt.new
+        selection = prompt.select("\n\nYour collection:", swords)
+        @new_flashcard = Flashcard.find_by(sword: selection)
+        view_flashcards(@new_flashcard)
+        sleep(1)
+        prompt = TTY::Prompt.new
+        selection = prompt.select("\nMake a Selection:") do |menu|
+            menu.choice "Back to Collection"
+            menu.choice "Delete this card"
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Back to Collection"
+            study_collection
+        elsif selection == 'Delete this card'
+            @user_flashcards.each do |uf|
+                if uf.flashcard_id == @new_flashcard.id
+                    uf.destroy
+                end
+            end
+            system("clear")
+            puts "Card deleted from #{@user.username.capitalize}'s collection!"
+            sleep(1)
+            check_user_flashcards
+            study_collection
+        elsif selection == 'Main Menu'
+            system('clear')
+            main_menu
+        elsif selection == "Quit"
+            quit
+        end     
+    end
+
     def sample_from_collection(collection)
         check_user_flashcards
         user_flashcard_id = collection.map {|fc| fc.flashcard_id}.sample
@@ -97,7 +137,6 @@ class StudyApp
 
     def save_card
       @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
-    #   binding.pry
       UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
       puts "Card saved to #{@user.username.capitalize}'s collection!"
       sleep(1)
@@ -158,34 +197,6 @@ class StudyApp
         end
     end
 
-    def new_card_or_delete
-        prompt = TTY::Prompt.new
-        selection = prompt.select("Please choose:") do |menu|
-            menu.choice 'Get another card'
-            menu.choice 'Delete card from Collection'
-            menu.choice 'Main Menu'
-            menu.choice 'Quit'
-        end
-  
-        if selection == 'Get another card'
-            view_flashcards(sample_from_collection(@user_flashcards))
-            new_card_or_delete
-        elsif selection == 'Delete card from Collection'
-            @user_flashcards.destroy_by(flashcard_id: @new_flashcard.id)
-            system("clear")
-            puts "Card deleted from #{@user.username.capitalize}'s collection!"
-            sleep(1)
-            check_user_flashcards
-            view_flashcards(sample_from_collection(@user_flashcards))
-            new_card_or_delete
-        elsif selection == 'Main Menu'
-            system("clear")
-            main_menu 
-        elsif selection == 'Quit'
-            quit
-        end
-    end
-
     def check_user_flashcards
         @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
         if @user_flashcards == []
@@ -202,10 +213,42 @@ class StudyApp
        sleep(1)
        pastel = Pastel.new
        font = TTY::Font.new(:doom)
-       puts pastel.yellow(font.write("Choa!"))
+       puts pastel.yellow(font.write("Adios!"))
        sleep(2)
        system("clear")
        exit!
     end
 
 end
+
+
+
+
+
+    #     def new_card_or_delete
+    #     prompt = TTY::Prompt.new
+    #     selection = prompt.select("Please choose:") do |menu|
+    #         menu.choice 'Get another card'
+    #         menu.choice 'Delete card from Collection'
+    #         menu.choice 'Main Menu'
+    #         menu.choice 'Quit'
+    #     end
+  
+    #     if selection == 'Get another card'
+    #         view_flashcards(sample_from_collection(@user_flashcards))
+    #         new_card_or_delete
+    #     elsif selection == 'Delete card from Collection'
+    #         @user_flashcards.destroy_by(flashcard_id: @new_flashcard.id)
+    #         system("clear")
+    #         puts "Card deleted from #{@user.username.capitalize}'s collection!"
+    #         sleep(1)
+    #         check_user_flashcards
+    #         view_flashcards(sample_from_collection(@user_flashcards))
+    #         new_card_or_delete
+    #     elsif selection == 'Main Menu'
+    #         system("clear")
+    #         main_menu 
+    #     elsif selection == 'Quit'
+    #         quit
+    #     end
+    # end
