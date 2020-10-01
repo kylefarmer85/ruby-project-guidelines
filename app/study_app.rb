@@ -34,28 +34,19 @@ class StudyApp
             quit
         else
            main_menu
-        # prompt = TTY::Prompt.new
-        # prompt.select("What would you like to do?", %w(study-all, study-your-collection, login))
-            #if study-all is selected @user.study_all
         end
     end
 
     def access_collection
-        # puts "Type 'view' to show random card or 'create' to make a new card."
-        # if UserFlashcard.all = []
-        #     puts "Sorry, no cards saved in collection."
-        # else
-        @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
-        # binding.pry
+        check_user_flashcards
         view_flashcards(sample_from_collection(@user_flashcards))
         new_card_or_delete
-        # end
     end
 
     def sample_from_collection(collection)
+        check_user_flashcards
         user_flashcard_id = collection.map {|fc| fc.flashcard_id}.sample
         Flashcard.find(user_flashcard_id)
-        #take in @user_flashcards and get back a sample
     end
 
     def view_flashcards(selector)
@@ -72,8 +63,8 @@ class StudyApp
         sleep(1)
         if input == @new_flashcard.eword
             puts "...Correct!"
-        elsif input == 'quit'
-            quit
+        # elsif input == 'quit'
+        #     quit
         else
             puts "...Sorry, the correct answer is #{@new_flashcard.eword}."
         end 
@@ -110,18 +101,28 @@ class StudyApp
                 view_flashcards(sample_from_collection(@user_flashcards))
                 new_card_or_delete
             elsif input == 'delete'
-                UserFlashcard.destroy_by(flashcard_id: @new_flashcard.id)
+                @user_flashcards.destroy_by(flashcard_id: @new_flashcard.id)
                 puts "Card deleted from #{@user.username.capitalize}'s collection!"
+                check_user_flashcards
                 view_flashcards(sample_from_collection(@user_flashcards))
                 new_card_or_delete
-                #maybe make into another helper method to use when user creates own card
-            elsif input == 'menu'
+            else input == 'menu'
                 main_menu  
         end
     end
 
+    def check_user_flashcards
+        @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
+        if @user_flashcards == []
+            puts "Sorry, no cards saved in collection."
+            main_menu
+        end
+    end
+
     def quit
-        puts "See you later!"
+       puts "See you later!"
+       sleep(2)
+       exit!
     end
 
 end
