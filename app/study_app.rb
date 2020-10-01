@@ -30,6 +30,7 @@ class StudyApp
 
 
     def main_menu
+<<<<<<< HEAD
         prompt = TTY::Prompt.new
         selection = prompt.select("Make a Selection:") do |menu|
             menu.choice "Study new flashcards"
@@ -39,14 +40,18 @@ class StudyApp
         end
   
         if selection == "Study new flashcards"
+>>>>>>> 8c871b7acc24cd84a9f2a4ba0fca13e6dd56544b
+
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif selection == 'Study your collection'
             access_collection
+<<<<<<< HEAD
         elsif selection == 'Create new flashcards'
             create_card
         elsif selection == 'Quit'
             quit 
+>>>>>>> 8c871b7acc24cd84a9f2a4ba0fca13e6dd56544b
         end
     end
 
@@ -56,10 +61,30 @@ class StudyApp
         new_card_or_delete
     end
 
+    def create_card
+        puts "Create your own card and save to you collection!"
+        sleep(1)
+        puts "First, enter the spanish word for your new flashcard."
+        sword = gets.chomp
+        puts "Enter the english translation."
+        eword = gets.chomp
+        @new_flashcard = Flashcard.create(eword: eword, sword: sword)
+        # @new_flashcard.id = (Flashcard.last.id + 1)
+        save_card
+    end
+
     def sample_from_collection(collection)
         check_user_flashcards
         user_flashcard_id = collection.map {|fc| fc.flashcard_id}.sample
         Flashcard.find(user_flashcard_id)
+    end
+
+    def save_card
+      @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
+    #   binding.pry
+      UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
+      puts "Card saved to #{@user.username.capitalize}'s collection!"
+      main_menu
     end
 
     def view_flashcards(selector)
