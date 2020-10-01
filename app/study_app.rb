@@ -1,4 +1,9 @@
 require "tty-prompt"
+require 'uri'
+require 'net/http'
+require 'openssl'
+require 'pry'
+require 'JSON'
 
 class StudyApp
     attr_reader :user
@@ -30,29 +35,42 @@ class StudyApp
 
 
     def main_menu
-<<<<<<< HEAD
         prompt = TTY::Prompt.new
         selection = prompt.select("Make a Selection:") do |menu|
             menu.choice "Study new flashcards"
             menu.choice 'Study your collection'
             menu.choice 'Create new flashcards'
+            menu.choice 'Translate'
             menu.choice 'Quit'
         end
   
         if selection == "Study new flashcards"
->>>>>>> 8c871b7acc24cd84a9f2a4ba0fca13e6dd56544b
-
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif selection == 'Study your collection'
             access_collection
-<<<<<<< HEAD
         elsif selection == 'Create new flashcards'
             create_card
+        elsif selection == 'Translate'
+            get_translation
         elsif selection == 'Quit'
             quit 
->>>>>>> 8c871b7acc24cd84a9f2a4ba0fca13e6dd56544b
         end
+    end
+
+    def get_translation
+        puts "Enter english word to get translation."
+        @user_input = gets.chomp.downcase  
+        url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{@user_input}&tl=es")
+        http = Net::HTTP.new(url.host, url.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        request = Net::HTTP::Get.new(url)
+        request["x-rapidapi-host"] = 'google-translate20.p.rapidapi.com'
+        request["x-rapidapi-key"] = '807242452dmshf265a3ae985a240p1097aejsnfc00a6192549'
+        response = http.request(request)
+        response_hash = JSON.parse(response.body)
+        puts response_hash["data"]["translation"]
     end
 
     def access_collection
