@@ -64,13 +64,13 @@ class StudyApp
         url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{@user_input}&tl=es")
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         request = Net::HTTP::Get.new(url)
         request["x-rapidapi-host"] = 'google-translate20.p.rapidapi.com'
         request["x-rapidapi-key"] = '807242452dmshf265a3ae985a240p1097aejsnfc00a6192549'
         response = http.request(request)
         response_hash = JSON.parse(response.body)
         puts response_hash["data"]["translation"]
+        # pid = fork{ exec 'afplay', NFF-usb-yes.wav}
     end
 
     def access_collection
@@ -87,7 +87,6 @@ class StudyApp
         puts "Enter the english translation."
         eword = gets.chomp
         @new_flashcard = Flashcard.create(eword: eword, sword: sword)
-        # @new_flashcard.id = (Flashcard.last.id + 1)
         save_card
     end
 
@@ -99,7 +98,6 @@ class StudyApp
 
     def save_card
       @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
-    #   binding.pry
       UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
       puts "Card saved to #{@user.username.capitalize}'s collection!"
       main_menu
