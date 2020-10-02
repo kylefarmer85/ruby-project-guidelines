@@ -6,7 +6,7 @@ Has a built in dictionary of 25,000 "flashcards" to quiz yourself with.
 User is able to create / delete their own Spanish word flashcards within their user collection. 
 User can also create flashcards with words and phrases using the built-in Google Translate API and save them to their collection.
 
-** Spanish/English database created by Manuel Gutierrez - github.com/xr09 **
+** Spanish/English database created by Manuel Gutierrez - github.com/xr09/shakespeare **
 
 To Install:
 Download or clone the repository and open it with a code editor. 
