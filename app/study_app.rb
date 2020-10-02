@@ -29,12 +29,18 @@ class StudyApp
         puts "\n\nEnter username to sign-up or log-in!"
         input = gets.chomp.downcase
         @user = User.find_or_create_by(username: input)
-        puts "\n\nWelcome, #{@user.username.capitalize}!"
+        sleep(1)
+        puts "\n\nWelcome, #{@user.username.capitalize}!\n\n"
         sleep(1)
     end
 
 
     def main_menu
+        system("clear")
+        sleep(1)
+        pastel = Pastel.new
+        font = TTY::Font.new(:doom)
+        puts pastel.blue(font.write("menu"))
         prompt = TTY::Prompt.new
         selection = prompt.select("Make a Selection:") do |menu|
             menu.choice "Study new flashcards"
@@ -48,7 +54,7 @@ class StudyApp
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif selection == 'Study your collection'
-            access_collection
+            study_collection
         elsif selection == 'Create new flashcards'
             create_card
         elsif selection == 'Translate'
@@ -59,9 +65,11 @@ class StudyApp
     end
 
     def get_translation
-        puts "Enter english word to get translation."
-        @user_input = gets.chomp.downcase  
-        url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{@user_input}&tl=es")
+        system("clear")
+        puts "Enter an english word or phrase to get a translation.\n\n"
+        user_input = gets.chomp.downcase 
+        puts "\n\n" 
+        url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{user_input}&tl=es")
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
         request = Net::HTTP::Get.new(url)
@@ -69,25 +77,107 @@ class StudyApp
         request["x-rapidapi-key"] = '807242452dmshf265a3ae985a240p1097aejsnfc00a6192549'
         response = http.request(request)
         response_hash = JSON.parse(response.body)
-        puts response_hash["data"]["translation"]
-        # pid = fork{ exec 'afplay', NFF-usb-yes.wav}
+        puts "Translation:"
+        translation = response_hash["data"]["translation"]
+        puts translation 
+        puts "\n\n"
+        sleep(1)
+        prompt = TTY::Prompt.new
+        selection = prompt.select("") do |menu|
+            menu.choice "Get another translation?"
+            menu.choice "Save to your collection"
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Get another translation?"
+            get_translation
+        elsif selection == 'Save to your collection'
+            @new_flashcard = Flashcard.create(eword: user_input, sword: translation)
+            sleep(1)
+            save_card
+            main_menu 
+        elsif selection == 'Main Menu'
+            main_menu
+        elsif selection == 'Quit'
+            quit 
+        end
+        
     end
 
-    def access_collection
-        check_user_flashcards
-        view_flashcards(sample_from_collection(@user_flashcards))
-        new_card_or_delete
-    end
+
 
     def create_card
+        system("clear")
+        sleep(1)
         puts "Create your own card and save to you collection!"
         sleep(1)
-        puts "First, enter the spanish word for your new flashcard."
+        puts "\n\nFirst, enter the spanish word for your new flashcard.\n\n"
         sword = gets.chomp
-        puts "Enter the english translation."
+        sleep(1)
+        puts "\n\nEnter the english translation.\n\n"
         eword = gets.chomp
+        puts "\n\n"
         @new_flashcard = Flashcard.create(eword: eword, sword: sword)
+        sleep(1)
         save_card
+
+        prompt = TTY::Prompt.new
+        selection = prompt.select("\n\nMake a Selection:") do |menu|
+            menu.choice "Create another card"
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Create another card"
+            create_card
+        elsif selection == 'Main Menu'
+            system('clear')
+            main_menu
+        elsif selection == "Quit"
+            quit
+        end
+    end
+
+    def study_collection
+        system("clear")
+        sleep(1)
+        check_user_flashcards
+        user_flashcard_ids = @user_flashcards.map {|fc| fc.flashcard_id}
+        user_flashcards = user_flashcard_ids.map {|uf| Flashcard.find(uf)}
+        swords = user_flashcards.map {|f| f.sword}
+        prompt = TTY::Prompt.new
+        selection = prompt.select("\n\nYour collection:", swords)
+        @new_flashcard = Flashcard.find_by(sword: selection)
+        view_flashcards(@new_flashcard)
+        sleep(1)
+        prompt = TTY::Prompt.new
+        selection = prompt.select("\nMake a Selection:") do |menu|
+            menu.choice "Back to Collection"
+            menu.choice "Delete this card"
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Back to Collection"
+            study_collection
+        elsif selection == 'Delete this card'
+            @user_flashcards.each do |uf|
+                if uf.flashcard_id == @new_flashcard.id
+                    uf.destroy
+                end
+            end
+            system("clear")
+            puts "Card deleted from #{@user.username.capitalize}'s collection!"
+            sleep(1)
+            check_user_flashcards
+            study_collection
+        elsif selection == 'Main Menu'
+            system('clear')
+            main_menu
+        elsif selection == "Quit"
+            quit
+        end     
     end
 
     def sample_from_collection(collection)
@@ -100,11 +190,12 @@ class StudyApp
       @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
       UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
       puts "Card saved to #{@user.username.capitalize}'s collection!"
-      main_menu
+      sleep(1)
     end
 
     def view_flashcards(selector)
         system("clear")
+        sleep(1)
         puts "Translate this to english:\n\n"
         sleep(1)
         @new_flashcard = selector
@@ -157,34 +248,6 @@ class StudyApp
         end
     end
 
-    def new_card_or_delete
-        prompt = TTY::Prompt.new
-        selection = prompt.select("Please choose:") do |menu|
-            menu.choice 'Get another card'
-            menu.choice 'Delete card from Collection'
-            menu.choice 'Main Menu'
-            menu.choice 'Quit'
-        end
-  
-        if selection == 'Get another card'
-            view_flashcards(sample_from_collection(@user_flashcards))
-            new_card_or_delete
-        elsif selection == 'Delete card from Collection'
-            @user_flashcards.destroy_by(flashcard_id: @new_flashcard.id)
-            system("clear")
-            puts "Card deleted from #{@user.username.capitalize}'s collection!"
-            sleep(1)
-            check_user_flashcards
-            view_flashcards(sample_from_collection(@user_flashcards))
-            new_card_or_delete
-        elsif selection == 'Main Menu'
-            system("clear")
-            main_menu 
-        elsif selection == 'Quit'
-            quit
-        end
-    end
-
     def check_user_flashcards
         @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
         if @user_flashcards == []
@@ -197,8 +260,13 @@ class StudyApp
     end
 
     def quit
-       puts "See you later!"
+       system("clear")
+       sleep(1)
+       pastel = Pastel.new
+       font = TTY::Font.new(:doom)
+       puts pastel.yellow(font.write("Adios!"))
        sleep(2)
+       system("clear")
        exit!
     end
 
