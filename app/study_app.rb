@@ -37,22 +37,16 @@ class StudyApp
         sleep(1)
     end
 
-
-    def main_menu
-        system("clear")
-        sleep(1)
-        pastel = Pastel.new
-        font = TTY::Font.new(:doom)
-        puts pastel.blue(font.write("menu"))
+    def tty_prompt
         prompt = TTY::Prompt.new
-        selection = prompt.select("Make a Selection:".colorize(:yellow)) do |menu|
+       selection = prompt.select("Make a Selection:".colorize(:yellow)) do |menu|
             menu.choice "Study new flashcards"
             menu.choice 'Study / manage your collection'
             menu.choice 'Create new flashcards'
             menu.choice 'Translate'
             menu.choice 'Quit'
         end
-  
+
         if selection == "Study new flashcards"
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
@@ -65,6 +59,15 @@ class StudyApp
         elsif selection == 'Quit'
             quit 
         end
+    end
+
+    def main_menu
+        system("clear")
+        sleep(1)
+        pastel = Pastel.new
+        font = TTY::Font.new(:doom)
+        puts pastel.blue(font.write("menu"))
+        tty_prompt
     end
 
     def get_translation
@@ -107,8 +110,6 @@ class StudyApp
         end
         
     end
-
-
 
     def create_card
         system("clear")
@@ -212,9 +213,11 @@ class StudyApp
         puts ".."
         sleep(1)
         if input == @new_flashcard.eword
+            pid = fork{ exec 'afplay', "NFF-success.wav" }
             puts "...Correct!\n\n".colorize(:light_blue)
             sleep(1)
         else
+            pid = fork{ exec 'afplay', "NFF-usb-yes.wav" }
             puts "...Sorry, the correct answer is #{@new_flashcard.eword}.\n\n".colorize(:red)
             sleep(1)
         end 
@@ -257,6 +260,7 @@ class StudyApp
         if @user_flashcards == []
             system("clear")
             sleep(1)
+            pid = fork{ exec 'afplay', "NFF-usb-yes.wav" }
             puts "\n\nSorry, no cards saved in collection.".colorize(:color => :white, :background => :red)
             sleep(3)
             main_menu
