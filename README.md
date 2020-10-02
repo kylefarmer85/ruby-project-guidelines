@@ -1,4 +1,5 @@
-Spanish Study Buddy
+Ven Conmigo!
+
 Overview
 
 Practice and test your knowledge of the Spanish language using a fun CLI app built with Ruby.

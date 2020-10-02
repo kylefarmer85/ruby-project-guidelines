@@ -22,9 +22,9 @@ class StudyApp
         pastel = Pastel.new
         font = TTY::Font.new(:doom)
         pid = fork{ exec 'afplay', "NFF-bravo.wav" }
-        puts pastel.yellow(font.write("Spanish Buddy"))
+        puts pastel.yellow(font.write("Ven Conmigo!"))
         sleep(1)
-        puts "\n\nLet's study!".colorize(:light_blue)
+        puts "\n\nLet's study Spanish!".colorize(:light_blue)
     end
 
     def login
@@ -44,6 +44,7 @@ class StudyApp
             menu.choice 'Study / manage your collection'
             menu.choice 'Create new flashcards'
             menu.choice 'Translate'
+            menu.choice 'Sign-out'
             menu.choice 'Quit'
         end
 
@@ -56,6 +57,10 @@ class StudyApp
             create_card
         elsif selection == 'Translate'
             get_translation
+        elsif selection == 'Sign-out'
+            system("clear")
+            login
+            main_menu
         elsif selection == 'Quit'
             quit 
         end
@@ -116,7 +121,7 @@ class StudyApp
         sleep(1)
         puts "Create your own card and save to your collection!".colorize(:yellow)
         sleep(1)
-        puts "\n\nFirst, enter the Spanish word for your new flashcard.\n\n"
+        puts "\n\nFirst, enter the Spanish word for your new card.\n\n"
         sword = gets.chomp
         sleep(1)
         puts "\n\nEnter the English translation.\n\n"
@@ -151,7 +156,7 @@ class StudyApp
         user_flashcards = user_flashcard_ids.map {|uf| Flashcard.find(uf)}
         swords = user_flashcards.map {|f| f.sword}
         prompt = TTY::Prompt.new
-        selection = prompt.select("\n\nYour collection:", swords)
+        selection = prompt.select("\n\nYour collection:\n\n", swords)
         new_flashcard = user_flashcards.find {|f| f.sword == selection}
         view_flashcards(new_flashcard)
         sleep(1)
@@ -205,7 +210,7 @@ class StudyApp
         @new_flashcard = selector
         puts "#{@new_flashcard.sword}"
         sleep(1)
-        puts "\n\nType your translation to flip the flashcard.\n\n"
+        puts "\n\nType your translation to see the answer.\n\n"
         input = gets.chomp 
         sleep(1)
         puts "."
@@ -225,8 +230,11 @@ class StudyApp
 
 
     def random_flashcard(collection)
-        rand_id = rand(collection.count) + 1
-        rand_record = collection.find(rand_id)
+        # rand_id = rand(collection.count) + 1
+        # rand_record = collection.find(rand_id)
+        
+        num = [22021, 3658, 10438, 6927, 17707, 22483, 13236, 3017, 7402].shuffle!.pop
+        Flashcard.find(num)
       end
 
     def new_card_or_save
