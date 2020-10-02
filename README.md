@@ -6,6 +6,8 @@ Has a built in dictionary of 25,000 "flashcards" to quiz yourself with.
 User is able to create / delete their own Spanish word flashcards within their user collection. 
 User can also create flashcards with words and phrases using the built-in Google Translate API and save them to their collection.
 
+** Spanish/English database created by Manuel Gutierrez - github.com/xr09 **
+
 To Install:
 Download or clone the repository and open it with a code editor. 
 Open the terminal and start the app by entering: 
@@ -14,7 +16,7 @@ ruby bin/run.rb
 * Using the CLI app:
 
 1. Welcome User / Login
-  -prompts user to login with username; if not found, the user is automatically created and saved to the database.
+    -prompts user to login with username; if not found, the user is automatically created and saved to the database.
 
 2. Main Menu - Use a selector to make a choice:
 
@@ -41,10 +43,10 @@ ruby bin/run.rb
        -User selects to get another translation, save the new words to a flashcard in the user's collection, return to the main menu or quit the app.
 
   E. Quit
-      -User is signed out and app terminates.
+       -User is signed out and app terminates.
 
 * Contributing
-   If you see an opportunity for improvement and can make the change yourself go ahead and use a typical git workflow to make it happen:
+  If you see an opportunity for improvement and can make the change yourself go ahead and use a typical git workflow to make it happen:
    -Fork this curriculum repository
    -Make the change on your fork, with descriptive commits in the standard format
    -Open a Pull Request against this repo
