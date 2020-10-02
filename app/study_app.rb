@@ -19,6 +19,7 @@ class StudyApp
     def welcome
         pastel = Pastel.new
         font = TTY::Font.new(:doom)
+        pid = fork{ exec 'afplay', "NFF-bravo.wav" }
         puts pastel.yellow(font.write("Spanish Buddy"))
         sleep(1)
         puts "\n\nLet's study!"
