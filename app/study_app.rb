@@ -4,6 +4,8 @@ require 'net/http'
 require 'openssl'
 require 'pry'
 require 'JSON'
+require 'colorize'
+require 'colorized_string'
 
 class StudyApp
     attr_reader :user
@@ -21,7 +23,7 @@ class StudyApp
         font = TTY::Font.new(:doom)
         puts pastel.yellow(font.write("Spanish Buddy"))
         sleep(1)
-        puts "\n\nLet's study!"
+        puts "\n\nLet's study!".colorize(:light_blue)
     end
 
     def login
@@ -42,7 +44,7 @@ class StudyApp
         font = TTY::Font.new(:doom)
         puts pastel.blue(font.write("menu"))
         prompt = TTY::Prompt.new
-        selection = prompt.select("Make a Selection:") do |menu|
+        selection = prompt.select("Make a Selection:".colorize(:yellow)) do |menu|
             menu.choice "Study new flashcards"
             menu.choice 'Study / manage your collection'
             menu.choice 'Create new flashcards'
@@ -66,7 +68,7 @@ class StudyApp
 
     def get_translation
         system("clear")
-        puts "Enter an english word or phrase to get a translation.\n\n"
+        puts "Enter an english word or phrase to get a translation.\n\n".colorize(:yellow)
         user_input = gets.chomp.downcase 
         puts "\n\n" 
         url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{user_input}&tl=es")
@@ -77,13 +79,13 @@ class StudyApp
         request["x-rapidapi-key"] = '807242452dmshf265a3ae985a240p1097aejsnfc00a6192549'
         response = http.request(request)
         response_hash = JSON.parse(response.body)
-        puts "Translation:"
+        puts "Translation:".colorize(:light_blue)
         translation = response_hash["data"]["translation"]
         puts translation 
         puts "\n\n"
         sleep(1)
         prompt = TTY::Prompt.new
-        selection = prompt.select("") do |menu|
+        selection = prompt.select("Please choose:".colorize(:yellow)) do |menu|
             menu.choice "Get another translation?"
             menu.choice "Save to your collection"
             menu.choice 'Main Menu'
@@ -110,7 +112,7 @@ class StudyApp
     def create_card
         system("clear")
         sleep(1)
-        puts "Create your own card and save to you collection!"
+        puts "Create your own card and save to your collection!".colorize(:yellow)
         sleep(1)
         puts "\n\nFirst, enter the spanish word for your new flashcard.\n\n"
         sword = gets.chomp
@@ -123,7 +125,7 @@ class StudyApp
         save_card
 
         prompt = TTY::Prompt.new
-        selection = prompt.select("\n\nMake a Selection:") do |menu|
+        selection = prompt.select("\n\nMake a Selection:".colorize(:yellow)) do |menu|
             menu.choice "Create another card"
             menu.choice 'Main Menu'
             menu.choice 'Quit'
@@ -153,7 +155,7 @@ class StudyApp
         sleep(1)
         check_user_flashcards
         prompt = TTY::Prompt.new
-        selection = prompt.select("\nMake a Selection:") do |menu|
+        selection = prompt.select("\nMake a Selection:".colorize(:yellow)) do |menu|
             menu.choice "Back to Collection"
             menu.choice "Delete this card"
             menu.choice 'Main Menu'
@@ -168,7 +170,7 @@ class StudyApp
                     uf.destroy
                 end
             end
-            puts "Card deleted from #{@user.username.capitalize}'s collection!"
+            puts "Card deleted from #{@user.username.capitalize}'s collection!".colorize(:red)
             sleep(1)
             check_user_flashcards
             study_collection
@@ -189,14 +191,14 @@ class StudyApp
     def save_card
       @user_flashcards = UserFlashcard.all.where("user_id = ?", @user.id)
       UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
-      puts "Card saved to #{@user.username.capitalize}'s collection!"
+      puts "Card saved to #{@user.username.capitalize}'s collection!".colorize(:green)
       sleep(1)
     end
 
     def view_flashcards(selector)
         system("clear")
         sleep(1)
-        puts "Translate this to english:\n\n"
+        puts "Translate this to english:\n\n".colorize(:yellow)
         sleep(1)
         @new_flashcard = selector
         puts "#{@new_flashcard.sword}"
@@ -209,10 +211,10 @@ class StudyApp
         puts ".."
         sleep(1)
         if input == @new_flashcard.eword
-            puts "...Correct!\n\n"
+            puts "...Correct!\n\n".colorize(:light_blue)
             sleep(1)
         else
-            puts "...Sorry, the correct answer is #{@new_flashcard.eword}.\n\n"
+            puts "...Sorry, the correct answer is #{@new_flashcard.eword}.\n\n".colorize(:red)
             sleep(1)
         end 
     end
@@ -225,7 +227,7 @@ class StudyApp
 
     def new_card_or_save
         prompt = TTY::Prompt.new
-        selection = prompt.select("Please choose:") do |menu|
+        selection = prompt.select("Please choose:".colorize(:yellow)) do |menu|
             menu.choice 'Get another card'
             menu.choice 'Save card to Collection'
             menu.choice 'Main Menu'
@@ -237,7 +239,7 @@ class StudyApp
             new_card_or_save
         elsif selection == 'Save card to Collection'
             UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
-            puts "Card saved to #{@user.username.capitalize}'s collection!\n\n"
+            puts "Card saved to #{@user.username.capitalize}'s collection!\n\n".colorize(:green)
             sleep (1)
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
@@ -254,8 +256,8 @@ class StudyApp
         if @user_flashcards == []
             system("clear")
             sleep(1)
-            puts "Sorry, no cards saved in collection."
-            sleep(1)
+            puts "\n\nSorry, no cards saved in collection.".colorize(:color => :white, :background => :red)
+            sleep(3)
             main_menu
         end
     end
