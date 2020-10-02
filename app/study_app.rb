@@ -65,8 +65,10 @@ class StudyApp
     end
 
     def get_translation
-        puts "Enter english word to get translation."
-        @user_input = gets.chomp.downcase  
+        system("clear")
+        puts "Enter an english word or phrase to get a translation.\n\n"
+        @user_input = gets.chomp.downcase 
+        puts "\n\n" 
         url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{@user_input}&tl=es")
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
@@ -76,7 +78,25 @@ class StudyApp
         request["x-rapidapi-key"] = '807242452dmshf265a3ae985a240p1097aejsnfc00a6192549'
         response = http.request(request)
         response_hash = JSON.parse(response.body)
+        puts "Translation:"
         puts response_hash["data"]["translation"]
+        puts "\n\n"
+        sleep(1)
+        prompt = TTY::Prompt.new
+        selection = prompt.select("") do |menu|
+            menu.choice "Get another translation?"
+            menu.choice 'Main Menu'
+            menu.choice 'Quit'
+        end
+  
+        if selection == "Get another translation?"
+            get_translation
+        elsif selection == 'Main Menu'
+            main_menu
+        elsif selection == 'Quit'
+            quit 
+        end
+        
     end
 
 
