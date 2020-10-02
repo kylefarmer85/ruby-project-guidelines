@@ -230,11 +230,8 @@ class StudyApp
 
 
     def random_flashcard(collection)
-        # rand_id = rand(collection.count) + 1
-        # rand_record = collection.find(rand_id)
-        
-        num = [22021, 3658, 10438, 6927, 17707, 22483, 13236, 3017, 7402].shuffle!.pop
-        Flashcard.find(num)
+        rand_id = rand(collection.count) + 1
+        rand_record = collection.find(rand_id)
       end
 
     def new_card_or_save
