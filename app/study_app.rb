@@ -44,7 +44,7 @@ class StudyApp
         prompt = TTY::Prompt.new
         selection = prompt.select("Make a Selection:") do |menu|
             menu.choice "Study new flashcards"
-            menu.choice 'Study your collection'
+            menu.choice 'Study / manage your collection'
             menu.choice 'Create new flashcards'
             menu.choice 'Translate'
             menu.choice 'Quit'
@@ -53,7 +53,7 @@ class StudyApp
         if selection == "Study new flashcards"
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
-        elsif selection == 'Study your collection'
+        elsif selection == 'Study / manage your collection'
             study_collection
         elsif selection == 'Create new flashcards'
             create_card
