@@ -30,7 +30,7 @@ class StudyApp
         input = gets.chomp.downcase
         @user = User.find_or_create_by(username: input)
         sleep(1)
-        puts "\n\nWelcome, #{@user.username.capitalize}!\n\n"
+        puts "\n\nWelcome, #{@user.username.capitalize}!"
         sleep(1)
     end
 
@@ -148,9 +148,10 @@ class StudyApp
         swords = user_flashcards.map {|f| f.sword}
         prompt = TTY::Prompt.new
         selection = prompt.select("\n\nYour collection:", swords)
-        @new_flashcard = Flashcard.find_by(sword: selection)
-        view_flashcards(@new_flashcard)
+        new_flashcard = user_flashcards.find {|f| f.sword == selection}
+        view_flashcards(new_flashcard)
         sleep(1)
+        check_user_flashcards
         prompt = TTY::Prompt.new
         selection = prompt.select("\nMake a Selection:") do |menu|
             menu.choice "Back to Collection"
@@ -163,11 +164,10 @@ class StudyApp
             study_collection
         elsif selection == 'Delete this card'
             @user_flashcards.each do |uf|
-                if uf.flashcard_id == @new_flashcard.id
+                if uf.flashcard_id == new_flashcard.id
                     uf.destroy
                 end
             end
-            system("clear")
             puts "Card deleted from #{@user.username.capitalize}'s collection!"
             sleep(1)
             check_user_flashcards
@@ -238,6 +238,7 @@ class StudyApp
         elsif selection == 'Save card to Collection'
             UserFlashcard.create(user_id: @user.id, flashcard_id: @new_flashcard.id)
             puts "Card saved to #{@user.username.capitalize}'s collection!\n\n"
+            sleep (1)
             view_flashcards(random_flashcard(Flashcard))
             new_card_or_save
         elsif selection == 'Main Menu'
