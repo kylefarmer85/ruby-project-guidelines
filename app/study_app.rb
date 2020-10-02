@@ -69,7 +69,7 @@ class StudyApp
 
     def get_translation
         system("clear")
-        puts "Enter an english word or phrase to get a translation.\n\n".colorize(:yellow)
+        puts "Enter an English word or phrase to get a translation.\n\n".colorize(:yellow)
         user_input = gets.chomp.downcase 
         puts "\n\n" 
         url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{user_input}&tl=es")
@@ -115,10 +115,10 @@ class StudyApp
         sleep(1)
         puts "Create your own card and save to your collection!".colorize(:yellow)
         sleep(1)
-        puts "\n\nFirst, enter the spanish word for your new flashcard.\n\n"
+        puts "\n\nFirst, enter the Spanish word for your new flashcard.\n\n"
         sword = gets.chomp
         sleep(1)
-        puts "\n\nEnter the english translation.\n\n"
+        puts "\n\nEnter the English translation.\n\n"
         eword = gets.chomp
         puts "\n\n"
         @new_flashcard = Flashcard.create(eword: eword, sword: sword)
@@ -199,7 +199,7 @@ class StudyApp
     def view_flashcards(selector)
         system("clear")
         sleep(1)
-        puts "Translate this to english:\n\n".colorize(:yellow)
+        puts "Translate this to English:\n\n".colorize(:yellow)
         sleep(1)
         @new_flashcard = selector
         puts "#{@new_flashcard.sword}"
