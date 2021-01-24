@@ -19,6 +19,7 @@ class StudyApp
     end
 
     def welcome
+        # runs first
         pastel = Pastel.new
         font = TTY::Font.new(:doom)
         pid = fork{ exec 'afplay', "NFF-bravo.wav" }
@@ -28,16 +29,16 @@ class StudyApp
     end
 
     def login
-        sleep(1)
+        #runs second
         puts "\n\nEnter username to sign-up or log-in!"
         input = gets.chomp.downcase
         @user = User.find_or_create_by(username: input)
-        sleep(1)
         puts "\n\nWelcome, #{@user.username.capitalize}!"
-        sleep(1)
     end
 
     def tty_prompt
+        #runs last
+        #allow user to choose starting action
         prompt = TTY::Prompt.new
        selection = prompt.select("Make a Selection:".colorize(:yellow)) do |menu|
             menu.choice "Study new flashcards"
@@ -67,6 +68,7 @@ class StudyApp
     end
 
     def main_menu
+        # runs third
         system("clear")
         sleep(1)
         pastel = Pastel.new
@@ -77,9 +79,11 @@ class StudyApp
 
     def get_translation
         system("clear")
+        # allow user to type word or phrase to translate
         puts "Enter an English word or phrase to get a translation.\n\n".colorize(:yellow)
         user_input = gets.chomp.downcase 
         puts "\n\n" 
+        # use input to fetch data from google translate API
         url = URI("https://google-translate20.p.rapidapi.com/translate?sl=en&text=#{user_input}&tl=es")
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
@@ -88,11 +92,13 @@ class StudyApp
         request["x-rapidapi-key"] = '807242452dmshf265a3ae985a240p1097aejsnfc00a6192549'
         response = http.request(request)
         response_hash = JSON.parse(response.body)
+        # return translation
         puts "Translation:".colorize(:light_blue)
         translation = response_hash["data"]["translation"]
         puts translation 
         puts "\n\n"
         sleep(1)
+        # allow user to choose next action
         prompt = TTY::Prompt.new
         selection = prompt.select("Please choose:".colorize(:yellow)) do |menu|
             menu.choice "Get another translation?"
@@ -117,6 +123,7 @@ class StudyApp
     end
 
     def create_card
+        #use input to create a flashcard for collection
         system("clear")
         sleep(1)
         puts "Create your own card and save to your collection!".colorize(:yellow)
@@ -131,6 +138,7 @@ class StudyApp
         sleep(1)
         save_card
 
+        # ask for next action
         prompt = TTY::Prompt.new
         selection = prompt.select("\n\nMake a Selection:".colorize(:yellow)) do |menu|
             menu.choice "Create another card"
@@ -150,7 +158,6 @@ class StudyApp
 
     def study_collection
         system("clear")
-        sleep(1)
         check_user_flashcards
         user_flashcard_ids = @user_flashcards.map {|fc| fc.flashcard_id}
         user_flashcards = user_flashcard_ids.map {|uf| Flashcard.find(uf)}
@@ -159,7 +166,6 @@ class StudyApp
         selection = prompt.select("\n\nYour collection:\n\n", swords)
         new_flashcard = user_flashcards.find {|f| f.sword == selection}
         view_flashcards(new_flashcard)
-        sleep(1)
         check_user_flashcards
         prompt = TTY::Prompt.new
         selection = prompt.select("\nMake a Selection:".colorize(:yellow)) do |menu|
@@ -213,10 +219,6 @@ class StudyApp
         puts "\n\nType your translation to see the answer.\n\n"
         input = gets.chomp 
         sleep(1)
-        puts "."
-        sleep(1)
-        puts ".."
-        sleep(1)
         if input == @new_flashcard.eword
             pid = fork{ exec 'afplay', "NFF-success.wav" }
             puts "...Correct!\n\n".colorize(:light_blue)
@@ -267,7 +269,6 @@ class StudyApp
             sleep(1)
             pid = fork{ exec 'afplay', "NFF-usb-yes.wav" }
             puts "\n\nSorry, no cards saved in collection.".colorize(:color => :white, :background => :red)
-            sleep(3)
             main_menu
         end
     end
